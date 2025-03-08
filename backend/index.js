@@ -9,6 +9,7 @@ const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+console.log('MongoDB URI:', process.env.MONGO_URI || 'NOT FOUND');
 
 // Load environment variables
 dotenv.config();
