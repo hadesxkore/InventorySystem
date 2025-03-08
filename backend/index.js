@@ -22,7 +22,7 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://inventory-system-vmms.vercel.app'] // Change this to your Vercel domain
+    ? ['https://inventorysystem23.netlify.app/'] // Change this to your Vercel domain
     : ['http://localhost:3000'],
   credentials: true
 }));
