@@ -52,7 +52,7 @@ export default function AlertsPage() {
     if (currentUser) {
       fetchLowStockProducts();
     }
-  }, [currentUser]);
+  }, [currentUser, fetchLowStockProducts]);
 
   // Open view modal with product details
   const openViewModal = (productId: string) => {

@@ -116,7 +116,7 @@ export default function ProductsPage() {
     if (currentUser) {
       fetchProducts();
     }
-  }, [currentUser]);
+  }, [currentUser, fetchProducts]);
   
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
@@ -133,7 +133,7 @@ export default function ProductsPage() {
       
       return () => clearTimeout(timer);
     }
-  }, [category, stockStatus, sortBy, sortOrder]);
+  }, [category, stockStatus, sortBy, sortOrder, currentUser, fetchProducts, loading]);
   
   // Handle pagination
   const handlePageChange = (newPage: number) => {

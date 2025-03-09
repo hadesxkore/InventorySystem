@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 export default function ProductsDebugPage() {
-  const { currentUser } = useAuth();
-  const [data, setData] = useState<any>(null);
+  // const { currentUser } = useAuth(); // Commented out as it's not used
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -17,13 +17,14 @@ export default function ProductsDebugPage() {
         console.log('API URL:', API_URL);
 
         // First try the special debug endpoint
-        let response = await fetch(`${API_URL}/products/debug/all`);
-        let result = await response.json();
+        const response = await fetch(`${API_URL}/products/debug/all`);
+        const result = await response.json();
 
         setData(result);
-      } catch (err: any) {
+      } catch (err: Error | unknown) {
         console.error('Error fetching data:', err);
-        setError(err.message || 'Error fetching data');
+        const errorMessage = err instanceof Error ? err.message : 'Error fetching data';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

@@ -108,7 +108,7 @@ export default function TransactionHistoryPage() {
     if (currentUser) {
       fetchTransactions();
     }
-  }, [currentUser]);
+  }, [currentUser, fetchTransactions]);
 
   // Handle filter changes
   const handleSearch = (e: React.FormEvent) => {
