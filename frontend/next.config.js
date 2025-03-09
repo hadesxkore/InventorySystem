@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  // swcMinify: true, // Removing this option as it's causing build errors
   // Configure images for Netlify
   images: {
     domains: ['firebasestorage.googleapis.com'],
