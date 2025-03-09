@@ -2,9 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Configure images for Vercel
+  // Configure images for Netlify
   images: {
     domains: ['firebasestorage.googleapis.com'],
+    unoptimized: true,
   },
   // Add CORS headers
   async headers() {
@@ -19,6 +20,10 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  // Configure environment variables
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || '/.netlify/functions/server/api',
   },
 };
 
