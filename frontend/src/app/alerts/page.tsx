@@ -12,9 +12,20 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProductViewModal } from '@/components/product/ProductViewModal';
 import { RestockModal } from '@/components/product/RestockModal';
 
+// Define a proper type for the product
+interface Product {
+  _id: string;
+  name: string;
+  sku: string;
+  category: string;
+  quantity: number;
+  minStockLevel: number;
+  // Add other product properties as needed
+}
+
 export default function AlertsPage() {
   const { currentUser } = useAuth();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -28,8 +39,9 @@ export default function AlertsPage() {
       setLoading(true);
       const data = await productApi.getLowStockProducts(currentUser);
       setProducts(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch low stock products');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch low stock products';
+      setError(errorMessage);
       console.error('Error fetching low stock products:', err);
     } finally {
       setLoading(false);
@@ -184,4 +196,4 @@ export default function AlertsPage() {
       />
     </DashboardLayout>
   );
-} 
+}

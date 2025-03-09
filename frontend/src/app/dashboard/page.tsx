@@ -9,9 +9,29 @@ import { reportApi } from '@/services/api';
 import { AlertTriangle, Package, TrendingDown, TrendingUp, DollarSign, Plus } from 'lucide-react';
 import Link from 'next/link';
 
+// Define proper interfaces for type safety
+interface CategoryDistribution {
+  _id: string;
+  count: number;
+  value: number;
+}
+
+interface StockStatus {
+  lowStock: number;
+  outOfStock: number;
+  inStock: number;
+}
+
+interface InventorySummary {
+  totalProducts: number;
+  totalValue: number;
+  stockStatus: StockStatus;
+  categoryDistribution: CategoryDistribution[];
+}
+
 export default function DashboardPage() {
   const { currentUser } = useAuth();
-  const [summaryData, setSummaryData] = useState<any>(null);
+  const [summaryData, setSummaryData] = useState<InventorySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +41,9 @@ export default function DashboardPage() {
         setLoading(true);
         const data = await reportApi.getInventorySummary(currentUser);
         setSummaryData(data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch inventory summary');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch inventory summary';
+        setError(errorMessage);
         console.error('Error fetching inventory summary:', err);
       } finally {
         setLoading(false);
@@ -120,7 +141,7 @@ export default function DashboardPage() {
                 <CardContent>
                   {summaryData?.categoryDistribution?.length > 0 ? (
                     <div className="space-y-4">
-                      {summaryData.categoryDistribution.map((category: any) => (
+                      {summaryData?.categoryDistribution.map((category) => (
                         <div key={category._id} className="flex items-center justify-between">
                           <div className="space-y-1">
                             <p className="text-sm font-medium">{category._id}</p>
@@ -135,7 +156,7 @@ export default function DashboardPage() {
                             <div
                               className="h-full bg-zinc-700"
                               style={{
-                                width: `${(category.count / summaryData.totalProducts) * 100}%`,
+                                width: `${(category.count / (summaryData.totalProducts || 1)) * 100}%`,
                               }}
                             />
                           </div>
@@ -190,4 +211,4 @@ export default function DashboardPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}

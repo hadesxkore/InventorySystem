@@ -16,10 +16,31 @@ import { ProductModal } from '@/components/product/ProductModal';
 import { confirm } from '@/components/ui/sonner-confirm';
 import { toast } from 'sonner';
 
+// Define proper interfaces for type safety
+interface Product {
+  _id: string;
+  name: string;
+  sku: string;
+  category: string;
+  quantity: number;
+  price: number;
+  minStockLevel: number;
+  createdAt: string;
+  updatedAt: string;
+  // Add other product properties as needed
+}
+
+interface Pagination {
+  total: number;
+  page: number;
+  pages: number;
+  limit: number;
+}
+
 export default function ProductsPage() {
   const { currentUser } = useAuth();
-  const [products, setProducts] = useState<any[]>([]);
-  const [pagination, setPagination] = useState<any>({
+  const [products, setProducts] = useState<Product[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
     total: 0,
     page: 1,
     pages: 1,
@@ -74,7 +95,7 @@ export default function ProductsPage() {
         });
         setError('Invalid response format from server');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching products:', err);
       setProducts([]);
       setPagination({
@@ -83,7 +104,8 @@ export default function ProductsPage() {
         pages: 1,
         limit: 10,
       });
-      setError(err.message || 'Failed to fetch products');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch products';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -152,8 +174,9 @@ export default function ProductsPage() {
           await productApi.deleteProduct(currentUser, productId);
           toast.success(`${productName} has been deleted`);
           handleProductUpdated();
-        } catch (err: any) {
-          toast.error(`Failed to delete: ${err.message || 'Unknown error'}`);
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+          toast.error(`Failed to delete: ${errorMessage}`);
           console.error('Error deleting product:', err);
         } finally {
           setLoading(false);
@@ -203,29 +226,29 @@ export default function ProductsPage() {
                 
                 <div className="flex gap-2">
                   <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[150px]">
                       <Filter className="h-4 w-4 mr-2" />
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="Electronics">Electronics</SelectItem>
-                      <SelectItem value="Office Supplies">Office Supplies</SelectItem>
-                      <SelectItem value="Furniture">Furniture</SelectItem>
-                      <SelectItem value="Kitchen">Kitchen</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      <SelectItem value="electronics">Electronics</SelectItem>
+                      <SelectItem value="clothing">Clothing</SelectItem>
+                      <SelectItem value="food">Food & Beverage</SelectItem>
+                      <SelectItem value="office">Office Supplies</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                   
                   <Select value={stockStatus} onValueChange={setStockStatus}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[150px]">
                       <SelectValue placeholder="Stock Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="in_stock">In Stock</SelectItem>
-                      <SelectItem value="low_stock">Low Stock</SelectItem>
-                      <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                      <SelectItem value="all">All Stock</SelectItem>
+                      <SelectItem value="in-stock">In Stock</SelectItem>
+                      <SelectItem value="low-stock">Low Stock</SelectItem>
+                      <SelectItem value="out-of-stock">Out of Stock</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
