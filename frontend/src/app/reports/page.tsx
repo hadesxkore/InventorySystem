@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -21,16 +20,43 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { reportApi } from '@/services/api';
 
+interface InventorySummary {
+  totalProducts: number;
+  totalValue: number;
+  stockStatus: {
+    inStock: number;
+    lowStock: number;
+    outOfStock: number;
+  };
+  categoryDistribution: Array<{
+    _id: string;
+    count: number;
+    value: number;
+  }>;
+}
+
+interface TransactionHistory {
+  transactions: Array<{
+    _id: string;
+    type: string;
+    productId: string;
+    productName: string;
+    quantity: number;
+    date: string;
+  }>;
+  total: number;
+}
+
 export default function ReportsPage() {
   const { currentUser } = useAuth();
-  const [inventorySummary, setInventorySummary] = useState<any>(null);
-  const [transactionHistory, setTransactionHistory] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [inventorySummary, setInventorySummary] = useState<InventorySummary | null>(null);
+  const [transactionHistory, setTransactionHistory] = useState<TransactionHistory | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         
         // Fetch inventory summary data
         const summaryData = await reportApi.getInventorySummary(currentUser);
@@ -42,7 +68,7 @@ export default function ReportsPage() {
       } catch (err) {
         console.error('Error fetching reports data:', err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -70,7 +96,7 @@ export default function ReportsPage() {
       color: 'bg-purple-500',
       textColor: 'text-purple-500',
       bgLight: 'bg-purple-50',
-      stats: `${transactionHistory?.pagination?.total || 0} recent transactions`,
+      stats: `${transactionHistory?.transactions.length || 0} recent transactions`,
     },
   ];
 
@@ -249,4 +275,4 @@ export default function ReportsPage() {
       </div>
     </DashboardLayout>
   );
-} 
+}

@@ -6,21 +6,49 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { reportApi } from '@/services/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { Download, Loader2, FileText, Printer, Search, Calendar, Filter } from 'lucide-react';
+import { Download, Loader2, FileText, Printer, Calendar, Filter } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from 'react-to-print';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { reportApi } from '@/services/api';
+
+// Define proper interfaces for type safety
+interface Transaction {
+  _id: string;
+  type: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface TransactionData {
+  transactions: Transaction[];
+  pagination: {
+    total: number;
+    page: number;
+    pages: number;
+    limit: number;
+  };
+}
 
 export default function TransactionHistoryPage() {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<TransactionData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const printComponentRef = useRef<HTMLDivElement>(null);
   
@@ -29,8 +57,9 @@ export default function TransactionHistoryPage() {
   const [transactionType, setTransactionType] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  // These state setters are kept for future implementation
+  const [sortBy] = useState('createdAt'); // Removed setter as it's unused
+  const [sortOrder] = useState<'asc' | 'desc'>('desc'); // Removed setter as it's unused
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchTransactions = async (page = 1) => {
@@ -38,7 +67,7 @@ export default function TransactionHistoryPage() {
       setLoading(true);
       
       // Clean up parameters to avoid sending 'undefined' string values
-      const params: any = {};
+      const params: Record<string, string | number> = {};
       
       // Only add properties that have valid values
       if (searchQuery && searchQuery.trim() !== '') {
@@ -75,7 +104,6 @@ export default function TransactionHistoryPage() {
         // Set empty data
         setData({
           transactions: [],
-          summary: [],
           pagination: {
             total: 0,
             page: page,
@@ -91,7 +119,6 @@ export default function TransactionHistoryPage() {
       // Set empty data on error
       setData({
         transactions: [],
-        summary: [],
         pagination: {
           total: 0,
           page: page,
@@ -175,7 +202,7 @@ export default function TransactionHistoryPage() {
       // Add transaction table
       const tableData = [
         ['Date', 'Product', 'SKU', 'Type', 'Quantity', 'Reason', 'Reference', 'User'],
-        ...data.transactions.map((transaction: any) => [
+        ...(data?.transactions || []).map((transaction: Transaction) => [
           new Date(transaction.createdAt).toLocaleDateString(),
           transaction.productId?.name || 'Unknown',
           transaction.productId?.sku || 'N/A',
@@ -233,7 +260,7 @@ export default function TransactionHistoryPage() {
       ];
       
       // Add data rows
-      const rows = data.transactions.map((transaction: any) => [
+      const rows = (data?.transactions || []).map((transaction: Transaction) => [
         new Date(transaction.createdAt).toLocaleDateString(),
         transaction.productId?.name || 'Unknown',
         transaction.productId?.sku || 'N/A',
@@ -433,8 +460,8 @@ export default function TransactionHistoryPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {data.transactions.map((transaction: any) => (
-                          <TableRow key={transaction._id}>
+                        {data.transactions.map((transaction: any, index: number) => (
+                          <TableRow key={index}>
                             <TableCell>
                               {new Date(transaction.createdAt).toLocaleDateString()}
                               <div className="text-xs text-gray-500">
