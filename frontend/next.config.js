@@ -2,8 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'standalone',
-  trailingSlash: false,
+  // Configure images for Vercel
+  images: {
+    domains: ['firebasestorage.googleapis.com'],
+  },
+  // Add CORS headers
   async headers() {
     return [
       {
